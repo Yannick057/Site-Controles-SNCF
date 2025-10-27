@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistiques Contrôles SNCF</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 style="text-align:center;">📊 Statistiques & Graphiques</h1>
+            <button onclick="window.location.href='index.html'" class="export-btn" style="margin-bottom:20px;">↩ Retour</button>
+        </header>
+
+        <!-- Statistiques générales -->
+        <section class="stats-overview">
+            <h2>Vue d'ensemble</h2>
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalControles">0</div>
+                    <div class="stat-label">Total Contrôles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalPersonnes">0</div>
+                    <div class="stat-label">Personnes Contrôlées</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalBilletsControles">0</div>
+                    <div class="stat-label">Tarifs Contrôlés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalPVs">0</div>
+                    <div class="stat-label">PVs Émis</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="tauxFraude">0%</div>
+                    <div class="stat-label">Taux de Fraude</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Graphique par train -->
+        <section class="chart-section">
+            <h2>Statistiques par Train</h2>
+            <canvas id="chartParTrain" width="890" height="300"></canvas>
+        </section>
+
+        <!-- Graphique par jour -->
+        <section class="chart-section">
+            <h2>Évolution par Jour</h2>
+            <canvas id="chartParJour" width="890" height="300"></canvas>
+        </section>
+
+        <!-- Tableau récapitulatif par train -->
+        <section class="stats-table">
+            <h2>Détails par Ligne de Train</h2>
+            <div style="overflow-x: auto;">
+                <table id="tableParTrain">
+                    <thead>
+                        <tr>
+                            <th>N° Train</th>
+                            <th>Nombre de Contrôles</th>
+                            <th>Personnes Contrôlées</th>
+                            <th>Tarifs Contrôlés</th>
+                            <th>PVs</th>
+                            <th>Taux Fraude</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableParTrainBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+    <script src="script-main.js"></script>
+    <script src="script-stats.js"></script>
+    <script>
+      window.addEventListener('DOMContentLoaded', initStatisticsPageModified);
+    </script>
+</body>
+</html>

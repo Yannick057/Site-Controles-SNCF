@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Contrôles SNCF - Saisie Bord</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="container">
+        <header style="position:relative;">
+            <h1 style="display:flex;align-items:center;justify-content:space-between;">
+                <span><span class="icon">🚄</span> Mes Contrôles à Bord</span>
+                <button class="stats-btn" onclick="window.location.href='stats.html'">📊 Statistiques</button>
+                <div id="burger" onclick="toggleParamsMenu()">
+                    <span>☰</span>
+                </div>
+            </h1>
+        </header>
+
+        <section class="saisie">
+            <h2>— Nouvelle saisie —</h2>
+            
+            <!-- Stats du train sur 7/30 jours -->
+            <div id="trainStats" style="display:none; background:#e8f4f8; padding:15px; border-radius:10px; margin-bottom:20px;">
+                <h3 style="margin-top:0; color:#1e88e5;">📊 Statistiques du train <span id="trainStatsNum"></span></h3>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                    <div>
+                        <strong>7 derniers jours :</strong>
+                        <div id="stats7days"></div>
+                    </div>
+                    <div>
+                        <strong>30 derniers jours :</strong>
+                        <div id="stats30days"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <form id="controleForm">
+                <div class="input-grid">
+                    <div class="input-group" style="position:relative;">
+                        <label for="train">Numéro de train</label>
+                        <div style="display:flex;align-items:center;">
+                            <input type="text" id="train" required style="width:130px;" onblur="checkTrainStatus()" oninput="onTrainInput()">
+                            <span id="train-status-dot" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#ccc;margin-left:10px;"></span>
+                            <span id="train-status-text" style="margin-left:8px;font-weight:bold;font-size:1em;"></span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="origine">Origine</label>
+                        <input list="villes" id="origine" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="destination">Destination</label>
+                        <input list="villes" id="destination" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="heureDepart">Heure de départ</label>
+                        <input type="time" id="heureDepart" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="nbControles">Personnes contrôlées</label>
+                        <div class="nb-controles-row">
+                            <input type="number" id="nbControles" min="0" required>
+                            <button type="button" class="inc-btn" onclick="incrementNbControles(5)">+5</button>
+                            <button type="button" class="inc-btn" onclick="incrementNbControles(10)">+10</button>
+                        </div>
+                    </div>
+                </div>
+                <datalist id="villes">
+                    <option>Metz</option>
+                    <option>Nancy</option>
+                    <option>Thionville</option>
+                    <option>Hagondange</option>
+                    <option>Bettembourg</option>
+                    <option>Epinal</option>
+                    <option>Luxembourg</option>
+                    <option>St Di</option>
+                    <option>Strasbourg</option>
+                    <option>Pont Mousson</option>
+                    <option>Luneville</option>
+                    <option>Conflans Jarny</option>
+                    <option>Verdun</option>
+                    <option>Bar-le-Duc</option>
+                </datalist>
+                <div class="option-flex">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="riPositif"> RI positif
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="riNegatif"> RI négatif
+                    </label>
+                </div>
+                <div class="input-group">
+                    <label for="commentaire">Commentaire</label>
+                    <input type="text" id="commentaire" placeholder="Facultatif">
+                </div>
+                <div class="input-group">
+                    <label for="photo">Photo (optionnelle)</label>
+                    <input type="file" id="photo" accept="image/*">
+                </div>
+                <div class="dynamic-section">
+                    <h3>Tarifs exceptionnels/bord</h3>
+                    <div id="billetsExceptionnels"></div>
+                    <button type="button" class="add-btn" onclick="ajouterBilletExceptionnel()">+ Ajouter tarif</button>
+                </div>
+                <div class="dynamic-section">
+                    <h3>Tarifs contrôle</h3>
+                    <!-- Compteur rapide STT 50€ -->
+                    <div style="margin-bottom:15px; background:#fff; padding:12px; border-radius:8px; border:1px solid #ddd;">
+                        <div style="display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-weight:600;">STT 50€</span>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <button type="button" class="counter-btn" onclick="updateSTTControle(-1)">−</button>
+                                <span id="sttControleCount" style="font-size:1.2em; font-weight:bold; min-width:30px; text-align:center;">0</span>
+                                <button type="button" class="counter-btn" onclick="updateSTTControle(1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="billetsControles"></div>
+                    <button type="button" class="add-btn" onclick="ajouterBilletControle()">+ Ajouter tarif</button>
+                </div>
+                <div class="dynamic-section">
+                    <h3>PV</h3>
+                    <!-- Compteur rapide STT 100€ -->
+                    <div style="margin-bottom:15px; background:#fff; padding:12px; border-radius:8px; border:1px solid #ddd;">
+                        <div style="display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-weight:600;">STT 100€</span>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <button type="button" class="counter-btn" onclick="updateSTTPV(-1)">−</button>
+                                <span id="sttPVCount" style="font-size:1.2em; font-weight:bold; min-width:30px; text-align:center;">0</span>
+                                <button type="button" class="counter-btn" onclick="updateSTTPV(1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="pvs"></div>
+                    <button type="button" class="add-btn" onclick="ajouterPV()">+ Ajouter PV</button>
+                </div>
+                <button type="submit" class="submit-btn">💾 Enregistrer la saisie</button>
+            </form>
+        </section>
+        <section class="historique">
+            <h2>— Historique —</h2>
+            <div id="stats"></div>
+            <div style="margin-bottom:15px;">
+                <label for="exportType" style="font-weight:600; margin-right:10px;">Type d'export :</label>
+                <select id="exportType" style="padding:6px; border-radius:6px; border:1px solid #ccd6e3;">
+                    <option value="date">Par jour</option>
+                    <option value="train">Par train</option>
+                    <option value="origine">Par origine</option>
+                </select>
+            </div>
+            <button type="button" class="export-btn" onclick="exportHTML()">📄 Export HTML</button>
+            <button type="button" class="export-btn" onclick="exportPDF()">🖨️ Export PDF</button>
+            <table id="historique">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('date')" style="cursor:pointer;">Date ▼</th>
+                        <th onclick="sortTable('train')" style="cursor:pointer;">Train ▼</th>
+                        <th onclick="sortTable('origine')" style="cursor:pointer;">Origine ▼</th>
+                        <th onclick="sortTable('destination')" style="cursor:pointer;">Destination ▼</th>
+                        <th onclick="sortTable('heureDepart')" style="cursor:pointer;">Heure ▼</th>
+                        <th onclick="sortTable('nbControles')" style="cursor:pointer;">Personnes ▼</th>
+                        <th>Op. Tarifs</th>
+                        <th>Op. PV</th>
+                        <th onclick="sortTable('totalOP')" style="cursor:pointer;">OP total ▼</th>
+                        <th onclick="sortTable('taux')" style="cursor:pointer;">Taux fraude ▼</th>
+                        <th>RI +</th>
+                        <th>RI -</th>
+                        <th>Commentaire</th>
+                        <th>Photo</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- MENU BURGER PARAMÈTRES (popup) -->
+        <div id="paramMenu" class="param-menu">
+            <div class="param-menu-content">
+                <button onclick="toggleParamsMenu()" class="close-btn">&times;</button>
+                <h2>⚙️ Paramètres</h2>
+                
+                <!-- Onglets -->
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('general')">Général</button>
+                    <button class="tab-btn" onclick="switchTab('data')">Base de données</button>
+                </div>
+
+                <!-- Contenu Onglet Général -->
+                <div id="tab-general" class="tab-content active">
+                    <div style="margin-top:15px;">
+                        <label for="langue">Langue de l'interface :</label>
+                        <select id="langue">
+                            <option value="fr">Français</option>
+                            <option value="en">Anglais</option>
+                        </select>
+                    </div>
+                    <div style="margin-top:12px;">
+                        <label for="autreParam">Notes personnelles :</label>
+                        <input type="text" id="autreParam" placeholder="Renseignement optionnel">
+                    </div>
+                </div>
+
+                <!-- Contenu Onglet Base de données -->
+                <div id="tab-data" class="tab-content">
+                    <h3>📥 Importer des données</h3>
+                    <p style="font-size:0.9em;color:#666;margin-top:5px;">Importer vos anciens contrôles depuis un fichier JSON</p>
+                    <input type="file" id="importJsonFile" accept=".json" style="margin:10px 0;">
+                    <button type="button" class="param-btn" onclick="importJsonControls()">📂 Importer JSON</button>
+                    
+                    <hr style="margin:20px 0;border:none;border-top:1px solid #ddd;">
+                    
+                    <h3>📤 Exporter la base de données</h3>
+                    <p style="font-size:0.9em;color:#666;margin-top:5px;">Sauvegarder tous vos contrôles au format JSON</p>
+                    <button type="button" class="param-btn" onclick="exportJsonControls()">💾 Exporter JSON</button>
+                    
+                    <hr style="margin:20px 0;border:none;border-top:1px solid #ddd;">
+                    
+                    <h3>🗑️ Supprimer la base de données</h3>
+                    <p style="font-size:0.9em;color:#d63031;margin-top:5px;">⚠️ Cette action est irréversible !</p>
+                    <button type="button" class="param-btn danger" onclick="deleteAllData()">❌ Tout supprimer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script-main.js"></script>
+    <script src="script-exports.js"></script>
+</body>
+</html>
