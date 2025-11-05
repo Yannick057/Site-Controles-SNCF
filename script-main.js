@@ -57,7 +57,7 @@ function afficherBilletsExceptionnels() {
 }
 
 function ajouterBilletControle() {
-    billetsControles.push({type: 'STT', montant: 50});
+    billetsControles.push({type: 'STT', montant: ""});
     afficherBilletsControles();
 }
 function supprimerBilletControle(i) {
@@ -87,7 +87,7 @@ function afficherBilletsControles() {
 }
 
 function ajouterPV() {
-    pvs.push({type: 'STT', montant: 100});
+    pvs.push({type: 'STT', montant: ""});
     afficherPvs();
 }
 function supprimerPV(i) {
