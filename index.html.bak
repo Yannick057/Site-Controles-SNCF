@@ -5,35 +5,21 @@
     <title>Contrôles SNCF - Saisie Bord</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- AJOUT BLOCS FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
     <div class="container">
         <header style="position:relative;">
-    <h1 style="display:flex;align-items:center;justify-content:space-between;">
-        <span><span class="icon">🚄</span> Mes Contrôles à Bord</span>
-        <button class="stats-btn" onclick="window.location.href='stats.html'">📊 Statistiques</button>
-        <div id="burger" onclick="toggleParamsMenu()">
-            <span>☰</span>
-        </div>
-        <!-- Menu utilisateur pour connexion Firebase -->
-        <span id="userMenu" style="float:right;">
-            <button id="loginBtn" onclick="showLoginForm()">Se connecter</button>
-            <span id="userInfo" style="display:none;">
-                <span id="usernameEmail"></span>
-                <button onclick="logoutUser()">Se déconnecter</button>
-            </span>
-        </span>
-    </h1>
-</header>
+            <h1 style="display:flex;align-items:center;justify-content:space-between;">
+                <span><span class="icon">🚄</span> Mes Contrôles à Bord</span>
+                <button class="stats-btn" onclick="window.location.href='stats.html'">📊 Statistiques</button>
+                <div id="burger" onclick="toggleParamsMenu()">
+                    <span>☰</span>
+                </div>
+            </h1>
+        </header>
 
-
-        <section class="saisie" id="mainApp" style="display:none;">
+        <section class="saisie">
             <h2>— Nouvelle saisie —</h2>
             
             <!-- Stats du train sur 7/30 jours -->
@@ -154,7 +140,7 @@
                 <button type="submit" class="submit-btn">💾 Enregistrer la saisie</button>
             </form>
         </section>
-        <section class="historique" id="sectionHistorique" style="display:none;">
+        <section class="historique">
             <h2>— Historique —</h2>
             <div id="stats"></div>
             <div style="margin-bottom:15px;">
@@ -240,22 +226,6 @@
             </div>
         </div>
     </div>
-	<!-- BLOC MODALE DE CONNEXION UTILISATEUR FIREBASE -->
-    <div id="loginModal" class="modal" style="display:none;">
-      <div class="modal-content">
-        <span onclick="hideLoginForm()" class="close-btn" style="cursor:pointer;float:right;">&times;</span>
-        <h2>Connexion</h2>
-        <input type="email" id="emailInput" placeholder="Email" style="width:95%;margin-bottom:8px;">
-        <input type="password" id="passwordInput" placeholder="Mot de passe" style="width:95%;">
-        <button onclick="loginWithEmail()">Se connecter</button>
-        <button onclick="registerWithEmail()">Créer un compte</button>
-		<button onclick="loginWithGoogle()" style="background:#fff;color:#222;border:1px solid #ccc;margin-top:10px;">
-    Se connecter avec Google
-</button>
-        <div id="authMessage" style="color:red;margin-top:8px;"></div>
-      </div>
-    </div>
-	<script src="script-auth.js"></script>
     <script src="script-main.js"></script>
     <script src="script-exports.js"></script>
 </body>

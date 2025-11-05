@@ -220,29 +220,40 @@ document.getElementById("controleForm").onsubmit = function(e) {
     };
 
     if (editingIndex !== null) {
-        controle.photo = controles[editingIndex].photo;
-        controle.date = controles[editingIndex].date || new Date().toISOString();
-        controles[editingIndex] = controle;
+        // (optionnel) tu peux adapter ici pour gestion Firestore d'un update
+        alert("Modification : sauvegarde dans Firestore non implémentée.");
     } else {
-        controles.push(controle);
+        const user = firebase.auth().currentUser;
+        if(user) {
+            firebase.firestore()
+            .collection("users").doc(user.uid)
+            .collection("controles")
+            .add(controle)
+            .then(() => {
+                alert("Saisie enregistrée !");
+                billetsExceptionnels = [];
+                billetsControles = [];
+                pvs = [];
+                sttControleCounter = 0;
+                sttPVCounter = 0;
+                document.getElementById('sttControleCount').textContent = '0';
+                document.getElementById('sttPVCount').textContent = '0';
+                afficherBilletsExceptionnels();
+                afficherBilletsControles();
+                afficherPvs();
+                chargerHistoriqueFromFirestore(); // recharge l’historique Firestore !
+                document.getElementById("controleForm").reset();
+                editingIndex = null;
+                const statsEl = document.getElementById('trainStats');
+                if (statsEl) statsEl.style.display = 'none';
+            })
+            .catch((err) => {
+                alert("Erreur Firestore : " + err.message);
+            });
+        } else {
+            alert("Vous devez être connecté !");
+        }
     }
-    localStorage.setItem("controles", JSON.stringify(controles));
-    billetsExceptionnels = [];
-    billetsControles = [];
-    pvs = [];
-    sttControleCounter = 0;
-    sttPVCounter = 0;
-    document.getElementById('sttControleCount').textContent = '0';
-    document.getElementById('sttPVCount').textContent = '0';
-    afficherBilletsExceptionnels();
-    afficherBilletsControles();
-    afficherPvs();
-    renderHistorique();
-    this.reset();
-    editingIndex = null;
-    
-    const statsEl = document.getElementById('trainStats');
-    if (statsEl) statsEl.style.display = 'none';
 };
 
 function renderStats() {
@@ -418,7 +429,7 @@ async function checkTrainStatus() {
     const trainNum = document.getElementById('train').value.trim();
     if (!trainNum) return;
     clearTrainStatus();
-    const API_KEY = "YOUR_SNCF_API_KEY";
+    const API_KEY = "3752d001-b449-45b8-a558-7f638f9421df";
     const url = `https://api.sncf.com/v1/coverage/sncf/vehicle_journeys?external_code=${trainNum}`;
     try {
         const resp = await fetch(url, { headers: { Authorization: API_KEY } });
@@ -450,3 +461,20 @@ function switchTab(tabName) {
     document.getElementById('tab-' + tabName).classList.add('active');
     event.target.classList.add('active');
 }
+function chargerHistoriqueFromFirestore() {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    firebase.firestore()
+    .collection("users").doc(user.uid)
+    .collection("controles")
+    .orderBy("date", "desc")
+    .get()
+    .then(snapshot => {
+        controles = [];
+        snapshot.forEach(doc => controles.push({...doc.data(), id: doc.id}));
+        renderHistorique(); // garde ta fonction d'affichage ici
+    });
+}
+firebase.auth().onAuthStateChanged(function(user) {
+    if (user) chargerHistoriqueFromFirestore();
+});
